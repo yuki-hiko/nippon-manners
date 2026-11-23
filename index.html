@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Spot the manner mistakes in Japan, then fix them. EN / FR / JA.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Nippon Manners — Spot &amp; Fix">
+<meta property="og:description" content="Spot the manner mistakes in Japan, then fix them. EN / FR / JA.">
+<meta property="og:image" content="scenes/station.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23d6362a' stroke-width='8'/%3E%3C/svg%3E">
+<title>ニッポンマナー間違い探し</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: station-signage header band, then scene (left) + status/explanation panel (right); stacks on phones */
+:root{
+  --bg:#eaeef5; --surface:#ffffff; --ink:#18213d; --muted:#5a6483; --line:#d3d9e6;
+  --sign:#1c2a5a; --on-sign:#ffffff; --signal:#f2c230; --maru:#d6362a; --ok:#25845a;
+  --ok-soft:#e3f3ea; --maru-soft:#fbe7e4;
+  --display:"Dela Gothic One","Hiragino Kaku Gothic StdN","Yu Gothic",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1322; --surface:#182038; --ink:#e7ebf6; --muted:#9aa3c1; --line:#2a3454;
+  --sign:#101a3d; --on-sign:#f3f5fb; --signal:#f2c230; --maru:#ff5a4a; --ok:#4cc38a;
+  --ok-soft:#173528; --maru-soft:#3a1c1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1322; --surface:#182038; --ink:#e7ebf6; --muted:#9aa3c1; --line:#2a3454;
+  --sign:#101a3d; --on-sign:#f3f5fb; --signal:#f2c230; --maru:#ff5a4a; --ok:#4cc38a;
+  --ok-soft:#173528; --maru-soft:#3a1c1c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.band{background:var(--sign);color:var(--on-sign);border-bottom:6px solid var(--signal)}
+.band-in,.main{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.band-in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand h1{font-family:var(--display);font-weight:400;font-size:clamp(20px,4vw,28px);margin:0;letter-spacing:.02em;line-height:1.2}
+.brand span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.lang{display:flex;border:1.5px solid var(--on-sign);border-radius:999px;overflow:hidden}
+.lang button{background:transparent;color:var(--on-sign);border:0;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--on-sign);color:var(--sign);font-weight:700}
+.main{padding-block:20px 40px;display:grid;grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"tabs tabs" "scene side";gap:16px 20px}
+.tabs{grid-area:tabs;display:flex;gap:8px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:10px;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer}
+.tab .no{font-family:var(--display);font-size:13px;background:var(--ink);color:var(--surface);border-radius:4px;padding:1px 7px}
+.tab .best{font-size:12px;color:var(--signal);letter-spacing:1px;min-width:3.2em}
+.tab[aria-current="true"]{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--signal)}
+.scene{grid-area:scene;min-width:0}
+.frame{position:relative;border:3px solid var(--ink);border-radius:14px;overflow:hidden;background:#e9e1cf}
+.frame svg{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation}
+.frame.dim svg{filter:saturate(.7)}
+.side{grid-area:side;display:flex;flex-direction:column;gap:14px;min-width:0}
+.status{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dots{display:flex;gap:6px}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line)}
+.dot.on{border:3px solid var(--maru)}
+.dot.fixed{border:3px solid var(--ok);background:var(--ok)}
+.fixq{display:grid;gap:8px;padding-top:4px;border-top:1.5px solid var(--line)}
+.fixq .lbl{padding-top:8px}
+.opt{font:inherit;font-size:14px;text-align:left;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:8px;padding:9px 12px;cursor:pointer}
+.opt:hover:not(:disabled){background:var(--bg)}
+.opt:disabled{opacity:.4;text-decoration:line-through;cursor:default}
+.opt:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.wrongfix{color:var(--maru)}
+.chip.done{border-color:var(--ok)}
+.afterfull{opacity:0;transition:opacity 1.2s ease}
+.afterfull.on{opacity:1}
+.grow{animation:grow .7s ease-out both}
+@keyframes grow{from{transform:scale(0)}to{transform:scale(1)}}
+.life{width:16px;height:16px;border-radius:4px;background:var(--signal)}
+.life.off{background:transparent;border:2px dashed var(--line)}
+.btns{display:flex;gap:8px}
+.btn{font:inherit;font-size:14px;border-radius:8px;padding:8px 14px;cursor:pointer;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--surface);font-weight:700}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible,.tab:focus-visible,.lang button:focus-visible,.chip:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
+.card .kind{display:inline-flex;align-self:start;justify-self:start;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px}
+.kind.bad{background:var(--maru-soft);color:var(--maru)}
+.kind.good{background:var(--ok-soft);color:var(--ok)}
+.kind.info{background:var(--bg);color:var(--muted)}
+.card h2{font-family:var(--display);font-weight:400;font-size:20px;margin:0;line-height:1.35;text-wrap:balance}
+.card p{margin:0}
+.card dl{margin:0;display:grid;gap:8px}
+.card dt{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.card dd{margin:0}
+.stars{font-size:28px;letter-spacing:4px;color:var(--signal)}
+.stars .off{color:var(--line)}
+.scene-note{margin:10px 0 0;padding:8px 12px;border-left:4px solid var(--signal);background:var(--surface);border-radius:0 8px 8px 0;font-size:13px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;border:1.5px solid var(--maru);color:var(--ink);background:transparent;border-radius:999px;padding:3px 10px;cursor:pointer}
+.chip.ghost{border-style:dashed;color:var(--muted)}
+.note{font-size:13px;color:var(--muted)}
+.maru{fill:none;stroke:var(--maru);stroke-width:6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .45s ease-out forwards}
+.reveal{fill:none;stroke:var(--maru);stroke-width:4;stroke-dasharray:10 8;opacity:.9}
+.okmark circle{fill:var(--ok)}
+.miss{font:700 34px var(--body);fill:var(--maru);animation:fade 1s ease-out forwards;pointer-events:none}
+.hintring{fill:none;stroke:var(--signal);stroke-width:6;stroke-dasharray:14 10;animation:pulse 1s ease-in-out 2;pointer-events:none}
+.steam{animation:rise 6s ease-in-out infinite}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fade{0%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+@keyframes pulse{50%{opacity:.25}}
+@keyframes rise{50%{transform:translateY(-10px);opacity:.15}}
+@media (prefers-reduced-motion: reduce){.grow{animation:none}.afterfull{transition:none}.maru{animation:none;stroke-dashoffset:0}.miss,.hintring,.steam{animation:none}}
+@media (max-width:820px){.main{grid-template-columns:minmax(0,1fr);grid-template-areas:"tabs" "scene" "side"}}
+</style>
+
+</head>
+<body>
+<header class="band"><div class="band-in">
+  <div class="brand"><h1 id="t-title">Nippon Manners</h1><span id="t-sub">Spot the faux pas</span></div>
+  <div class="lang" role="group" aria-label="Language">
+    <button id="lang-en" type="button" aria-pressed="true">EN</button>
+    <button id="lang-fr" type="button" aria-pressed="false">FR</button>
+    <button id="lang-ja" type="button" aria-pressed="false">日本語</button>
+  </div>
+</div></header>
+
+<main class="main">
+  <nav class="tabs" id="tabs"></nav>
+  <section class="scene"><div class="frame" id="frame"><svg id="svg" viewBox="0 0 800 500" role="img" aria-label="Scene"></svg></div><p class="scene-note" id="scene-note" hidden></p></section>
+  <aside class="side">
+    <div class="status">
+      <div class="row"><span class="lbl" id="t-found">Found</span><div class="dots" id="dots"></div></div>
+      <div class="row"><span class="lbl" id="t-chances">Chances</span><div class="dots" id="lives"></div></div>
+      <div class="btns"><button class="btn" id="hint" type="button">Hint</button><button class="btn" id="restart" type="button">Restart</button></div>
+    </div>
+    <div class="card" id="card" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+  </aside>
+</main>
+
+<script>
+const SCENES=[
+ {id:'station',name:{en:'Station platform',fr:'Quai de gare',ja:'駅のホーム'},img:'scenes/station.webp',after:'scenes/station-fixed.webp',h:533,labels:[{x:462,y:99,w:86,h:32,r:16,fill:'#ffffff',stroke:'#e2e2e2',ink:'#d6362a',spot:'phone',t:{en:'Hello?!',fr:'Allô ?!'}},{x:664,y:244,w:133,h:50,r:18,fs:14,shape:'thought',spot:'trash',fill:'#ffffff',stroke:'#2b3f73',ink:'#2b3f73',t:{en:'No trash can…\nI’ll just leave it!',fr:'Pas de poubelle…\nJe le laisse là !',ja:'ゴミ箱ないし\n置いてっちゃお〜'}}],spots:[
+  {id:'door',kind:'v',x:388,y:229,r:62,t:{en:['Pushing in before people get off','People getting off go first. Pushing into the doorway stops them from leaving.','Wait beside the doors on the painted queue lines. Board after everyone is off.'],fr:["Monter avant que les gens descendent", "Les personnes qui descendent passent en premier. Se précipiter dans la porte les empêche de sortir.", "Attendez à côté des portes, sur les lignes peintes au sol. Montez quand tout le monde est descendu."],ja:['降りる人より先に乗り込む','降りる人が先です。先に乗り込むと、降りる人が出られません。','ホームに描かれた乗車位置の線に沿って、ドアの横に並びます。降りる人が全員降りてから乗ります。']}},
+  {id:'phone',kind:'v',x:521,y:167,r:46,t:{en:['Talking on the phone on the train','Trains are quiet spaces. Phone calls bother people nearby. Japanese phones even call silent mode "manner mode" (マナーモード).','Switch to silent mode and send a message. If you must call, get off at the next station.'],fr:["Téléphoner dans le train", "Le train est un lieu calme. Les appels dérangent les voisins. Au Japon, le mode silencieux s’appelle même « mode manières » (マナーモード).", "Passez en mode silencieux et envoyez un message. Si vous devez appeler, descendez à la station suivante."],ja:['車内での通話','電車の中は静かに過ごす場所です。通話は周りの人の迷惑になります。','マナーモードにして、メッセージで連絡します。どうしても話すときは、次の駅で降りてから電話します。']}},
+  {id:'pack',kind:'v',x:91,y:167,r:48,t:{en:['Backpack on your back in a crowded car','It takes up space and bumps into the people behind you.','Hold it in front of you, or put it on the overhead rack.'],fr:["Sac à dos sur le dos dans un train bondé", "Il prend de la place et heurte les personnes derrière vous.", "Portez-le devant vous ou posez-le sur le porte-bagages."],ja:['混んだ車内でリュックを背負う','場所を取り、後ろの人にぶつかります。','前に抱えるか、網棚に載せます。']}},
+  {id:'eat',kind:'v',x:94,y:359,r:58,t:{en:['Eating while walking','Food can drip on other people and the floor, and walking while eating is seen as sloppy in Japan.','Stand still near the shop where you bought it, finish eating, then walk on.'],fr:["Manger en marchant", "La nourriture peut tomber sur les gens ou par terre, et manger en marchant est mal vu au Japon.", "Arrêtez-vous près de la boutique où vous l’avez acheté, finissez de manger, puis repartez."],ja:['食べ歩き','食べ物が人や床に落ちることがあり、だらしなく見られます。','買ったお店の近くで立ち止まって食べ終えてから歩きます。']}},
+  {id:'trash',kind:'v',x:599,y:417,r:55,more:[[729,396,55]],t:{en:['Leaving trash behind','Public bins are rare in Japan, so people take their trash with them.','Carry a small bag for trash. If you find a station bin, sort it: cans, bottles, burnables.'],fr:["Laisser ses déchets", "Les poubelles publiques sont rares au Japon : on garde ses déchets avec soi.", "Ayez un petit sac pour vos déchets. Si vous trouvez une poubelle en gare, triez : canettes, bouteilles, déchets combustibles."],ja:['ゴミを置いていく','日本は公共のゴミ箱が少ないので、ゴミは持ち帰るのが普通です。','小さなゴミ袋を持ち歩きます。駅のゴミ箱を使うときは、缶・ペットボトル・燃えるゴミに分けます。']}},
+  {id:'queue',kind:'d',x:260,y:365,r:52,t:{en:['Waiting on the queue line','Lining up beside the door on the painted marks is exactly right.'],fr:["Attendre sur la ligne de file", "Faire la queue à côté de la porte, sur les marques au sol, c’est exactement ce qu’il faut."],ja:['乗車位置の線に並ぶ','ドアの横の線に沿って並ぶのは正しいマナーです。']}},
+  {id:'queue2',kind:'d',x:482,y:365,r:44,t:{en:['Waiting on the queue line','Lining up beside the door on the painted marks is exactly right.'],fr:["Attendre sur la ligne de file", "Faire la queue à côté de la porte, sur les marques au sol, c’est exactement ce qu’il faut."],ja:['乗車位置の線に並ぶ','ドアの横の線に沿って並ぶのは正しいマナーです。']}},
+  {id:'read',kind:'d',x:229,y:161,r:46,t:{en:['Reading quietly','A book and silence: perfect train manners.'],fr:["Lire en silence", "Un livre et le silence : les manières parfaites dans le train."],ja:['静かに読書','静かに本を読むのは、理想的な車内マナーです。']}},
+  {id:'sleep',kind:'d',x:688,y:172,r:46,t:{en:['Napping on the train','Sleeping on the train is common and accepted in Japan. Just try not to lean on your neighbor.'],fr:["Faire la sieste dans le train", "Dormir dans le train est courant et accepté au Japon. Évitez seulement de vous appuyer sur votre voisin."],ja:['車内で居眠り','日本では電車で寝るのはよくあることで、問題ありません。隣の人にもたれないようにだけ気をつけます。']}}
+ ]},
+ {id:'onsen',name:{en:'Hot spring',fr:'Source chaude',ja:'温泉'},img:'scenes/onsen.webp',after:'scenes/onsen-fixed.webp',h:533,note:{en:'Note: This picture shows men and women together for the game. In Japan, almost all hot spring baths are separated into men’s and women’s baths. A few places also have mixed baths (konyoku).',fr:'Remarque : pour le jeu, hommes et femmes sont dessinés ensemble. Au Japon, presque tous les bains thermaux sont séparés entre hommes et femmes. Quelques-uns proposent aussi des bains mixtes (konyoku).',ja:'※ゲームのため男女を一緒に描いていますが、日本の温泉のほとんどは男湯と女湯に分かれています。一部には混浴の温泉もあります。'},spots:[
+  {id:'towel',kind:'v',x:391,y:349,r:44,t:{en:['Putting your towel in the bath','Towels carry soap and dirt, and the bath water is shared by everyone.','Fold it on your head, or leave it on the edge of the bath.'],fr:["Mettre sa serviette dans le bain", "La serviette porte du savon et de la saleté, et l’eau du bain est partagée.", "Pliez-la sur votre tête ou posez-la sur le bord du bain."],ja:['タオルを湯船に入れる','タオルには石けんや汚れがついています。お湯はみんなで使うものです。','頭の上にたたんで載せるか、湯船のふちに置きます。']}},
+  {id:'suit',kind:'v',x:253,y:365,r:60,t:{en:['Wearing a swimsuit','Onsen are entered without clothes. Swimsuits are seen as unclean in the shared water.','Wash at the shower area first, then go in bare. Some resorts have swimsuit baths; check the signs.'],fr:["Porter un maillot de bain", "On entre dans un onsen sans vêtements. Le maillot est jugé peu hygiénique dans l’eau partagée.", "Lavez-vous d’abord à la zone de douche, puis entrez sans vêtements. Certains établissements ont des bains avec maillot : vérifiez les panneaux."],ja:['水着で入る','温泉は裸で入るものです。水着は不衛生と考えられています。','先に洗い場で体を洗ってから、裸で入ります。水着で入れる施設もあるので、案内を確認します。']}},
+  {id:'hair',kind:'v',x:687,y:318,r:44,t:{en:['Long hair in the water','Hair floating in shared water is unhygienic.','Tie your hair up, or wrap it in a towel or hair band before getting in.'],fr:["Cheveux longs dans l’eau", "Des cheveux qui flottent dans l’eau partagée, ce n’est pas hygiénique.", "Attachez vos cheveux, ou enveloppez-les dans une serviette ou un bandeau avant d’entrer."],ja:['長い髪をお湯につける','共用のお湯に髪が浮くのは不衛生です。','髪をまとめるか、ヘアバンドやタオルで包んでから入ります。']}},
+  {id:'swim',kind:'v',x:458,y:417,r:52,t:{en:['Swimming in the bath','Onsen are for quiet soaking. Swimming and splashing disturb everyone else.','Sit down, relax, and keep your voice low.'],fr:["Nager dans le bain", "L’onsen sert à se détendre au calme. Nager et éclabousser dérange les autres.", "Asseyez-vous, détendez-vous et parlez à voix basse."],ja:['湯船で泳ぐ','温泉は静かに浸かる場所です。泳いだり水しぶきを上げたりすると、周りの迷惑になります。','座ってゆっくり浸かり、声も小さめにします。']}},
+  {id:'photo',kind:'v',x:698,y:411,r:48,t:{en:['Taking photos in the bath','Other people are naked. Cameras and phones are banned in almost every bath.','Leave your phone in the locker. Take photos at the entrance instead.'],fr:["Prendre des photos dans le bain", "Les autres sont nus. Appareils photo et téléphones sont interdits dans presque tous les bains.", "Laissez votre téléphone au casier. Prenez plutôt vos photos à l’entrée."],ja:['浴場で撮影する','ほかの人は裸です。ほとんどの浴場で、カメラやスマホの持ち込みは禁止です。','スマホはロッカーに置いていきます。写真は入口などで撮ります。']}},
+  {id:'headtowel',kind:'d',x:471,y:312,r:40,t:{en:['Towel folded on your head','This is the classic way. It keeps the towel out of the water.'],fr:["Serviette pliée sur la tête", "C’est la manière classique. La serviette reste hors de l’eau."],ja:['頭にタオル','定番の正しいスタイルです。タオルをお湯に入れずにすみます。']}},
+  {id:'bun',kind:'d',x:583,y:312,r:40,t:{en:['Hair tied up','Exactly right. Tied-up hair stays out of the water.'],fr:["Cheveux attachés", "Parfait. Les cheveux attachés restent hors de l’eau."],ja:['髪をまとめる','正解です。まとめた髪はお湯につきません。']}},
+  {id:'wash',kind:'d',x:86,y:396,r:55,t:{en:['Washing while seated','Washing on a stool before bathing is the correct first step. Sitting keeps the spray off your neighbors.'],fr:["Se laver assis", "Se laver sur un tabouret avant le bain est la bonne première étape. Assis, on n’éclabousse pas ses voisins."],ja:['座って体を洗う','湯船に入る前に、いすに座って体を洗うのが正しい手順です。座れば隣の人にしぶきがかかりません。']}}
+ ]},
+ {id:'izakaya',name:{en:'Izakaya dinner',fr:'Dîner à l’izakaya',ja:'居酒屋の食事'},img:'scenes/izakaya.webp',after:'scenes/izakaya-fixed.webp',h:500,labels:[{x:98,y:177,w:60,h:28,r:8,fill:'#f3ead9',stroke:'none',ink:'#5b3a22',t:{en:'Slurp!',fr:'Slurp !'}},{x:620,y:158,w:76,h:34,r:17,fill:'#ffffff',stroke:'#d6362a',ink:'#d6362a',spot:'nose',t:{en:'Honk!',fr:'Pouet !'}}],spots:[
+  {id:'upright',kind:'v',x:202,y:290,r:42,t:{en:['Sticking chopsticks upright in rice','This is how rice is offered to the dead at funerals, so it feels like bad luck at the table.','Rest your chopsticks on the chopstick rest, or lay them across the edge of your bowl.'],fr:["Planter ses baguettes dans le riz", "C’est ainsi qu’on offre le riz aux défunts lors des funérailles : à table, cela porte malheur.", "Posez vos baguettes sur le repose-baguettes, ou en travers du bord de votre bol."],ja:['箸をご飯に突き立てる（立て箸）','お葬式で故人に供えるご飯と同じ形なので、縁起が悪いとされます。','箸置きに置くか、器のふちに揃えて置きます。']}},
+  {id:'pass',kind:'v',x:343,y:237,r:42,t:{en:['Passing food from chopsticks to chopsticks','After a cremation, family members pass the bones this way. At the table it is a strong taboo.','Put the food on the other person’s plate, or let them take it themselves.'],fr:["Passer la nourriture de baguettes à baguettes", "Après une crémation, la famille se transmet les os de cette façon. À table, c’est un tabou fort.", "Posez la nourriture dans l’assiette de l’autre personne, ou laissez-la se servir."],ja:['箸から箸へ渡す（箸渡し）','火葬のあとにお骨を箸から箸へ渡す作法を思わせるため、食卓では強く避けられます。','相手の取り皿に置くか、自分で取ってもらいます。']}},
+  {id:'nose',kind:'v',x:596,y:225,r:42,t:{en:['Blowing your nose at the table','Blowing your nose in front of others during a meal is seen as rude.','Excuse yourself and step away, for example to the restroom.'],fr:["Se moucher à table", "Se moucher devant les autres pendant le repas est considéré comme impoli.", "Excusez-vous et éloignez-vous, par exemple aux toilettes."],ja:['食事中に鼻をかむ','食事中に人前で鼻をかむのは失礼とされます。','いったん席を外して、お手洗いなどでかみます。']}},
+  {id:'tip',kind:'v',x:550,y:320,r:36,t:{en:['Leaving a tip','Tipping is not part of Japanese culture. Staff may even run after you to return the money.','Pay the amount on the bill. When you leave, say “Gochisōsama deshita” (thank you for the meal).'],fr:["Laisser un pourboire", "Le pourboire ne fait pas partie de la culture japonaise. Le personnel peut même courir après vous pour vous rendre l’argent.", "Payez le montant de l’addition. En partant, dites « Gochisōsama deshita » (merci pour le repas)."],ja:['チップを置く','日本にはチップの習慣がありません。店員さんが返しに追いかけてくることもあります。','請求どおりに支払い、帰るときに「ごちそうさまでした」と伝えます。']}},
+  {id:'shoes',kind:'v',x:704,y:290,r:75,more:[[704,392,38]],t:{en:['Shoes on the tatami','Tatami mats are woven straw. Shoes damage them and bring in dirt.','Take your shoes off on the stone floor before stepping up, and line them up facing the door.'],fr:["Chaussures sur le tatami", "Le tatami est en paille tressée. Les chaussures l’abîment et apportent de la saleté.", "Retirez vos chaussures sur le sol en pierre avant de monter, et alignez-les pointes vers la porte."],ja:['土足で畳に上がる','畳はい草でできていて傷みやすく、靴のままだと汚れます。','上がる前に土間で靴を脱ぎ、つま先を出口に向けて揃えます。']}},
+  {id:'slurp',kind:'d',x:76,y:242,r:45,t:{en:['Slurping noodles','Slurping soba or ramen is normal in Japan. It cools the noodles and shows you are enjoying them.'],fr:["Aspirer ses nouilles bruyamment", "Aspirer ses soba ou ses ramen est normal au Japon. Cela refroidit les nouilles et montre que vous appréciez."],ja:['麺をすする','そばやラーメンをすするのは、日本では普通です。麺が冷めますし、おいしく食べている合図にもなります。']}},
+  {id:'bowl',kind:'d',x:497,y:225,r:40,t:{en:['Lifting your bowl to your mouth','Holding your rice or soup bowl up near your mouth is good manners in Japan.'],fr:["Porter son bol à la bouche", "Tenir son bol de riz ou de soupe près de la bouche, ce sont de bonnes manières au Japon."],ja:['茶碗を持ち上げて食べる','ご飯茶碗や汁椀を口元まで持ち上げて食べるのは、日本では良いマナーです。']}},
+  {id:'lined',kind:'d',x:732,y:467,r:40,t:{en:['Shoes lined up at the entrance','Taken off and lined up neatly, toes toward the door. Perfect.'],fr:["Chaussures alignées à l’entrée", "Retirées et bien alignées, pointes vers la porte. Parfait."],ja:['揃えて脱いだ靴','靴を脱いで、つま先を出口に向けて揃えています。完璧です。']}}
+ ]}
+];
+
+const FIX={"door": {"en": ["Step aside and let people off first", "Squeeze in sideways so both fit", "Say “excuse me” and keep pushing"], "fr": ["S’écarter et laisser descendre d’abord", "Se glisser de côté pour passer à deux", "Dire « pardon » et continuer à pousser"], "ja": ["横によけて、降りる人を先に通す", "体を横にして一緒に通る", "「すみません」と言いながら押し進む"]}, "phone": {"en": ["Switch to silent and send a message", "Keep talking, but cover your mouth", "Put the call on speaker"], "fr": ["Passer en silencieux et envoyer un message", "Continuer à parler, la main devant la bouche", "Mettre le haut-parleur"], "ja": ["マナーモードにしてメッセージを送る", "口を手で隠して話し続ける", "スピーカーにして話す"]}, "pack": {"en": ["Hold the backpack in front of you", "Turn around so it bumps less", "Lean on the door with it"], "fr": ["Porter le sac devant soi", "Se tourner pour moins heurter les autres", "S’appuyer contre la porte avec le sac"], "ja": ["リュックを前に抱える", "向きを変えてぶつかりにくくする", "リュックごとドアにもたれる"]}, "eat": {"en": ["Stand still and finish eating first", "Walk more slowly while eating", "Eat faster so it doesn’t drip"], "fr": ["S’arrêter et finir de manger", "Marcher plus lentement en mangeant", "Manger plus vite pour que ça ne coule pas"], "ja": ["立ち止まって食べ終える", "ゆっくり歩きながら食べる", "垂れないように急いで食べる"]}, "trash": {"en": ["Take your trash with you", "Push it under the bench", "Leave it neatly stacked"], "fr": ["Emporter ses déchets", "Les pousser sous le banc", "Les laisser bien empilés"], "ja": ["ゴミを持ち帰る", "ベンチの下に押し込む", "きれいに積んで置いていく"]}, "towel": {"en": ["Fold it on the edge of the bath", "Wring it out, then put it back in", "Wrap it around you in the water"], "fr": ["La poser pliée sur le bord du bain", "L’essorer puis la remettre dans l’eau", "S’en envelopper dans l’eau"], "ja": ["たたんで湯船のふちに置く", "しぼってからお湯に戻す", "お湯の中で体に巻く"]}, "suit": {"en": ["Take it off and wash first", "Rinse the swimsuit with hot water", "Wear a towel over the swimsuit"], "fr": ["L’enlever et se laver d’abord", "Rincer le maillot à l’eau chaude", "Mettre une serviette par-dessus le maillot"], "ja": ["水着を脱いで、先に体を洗う", "水着をお湯で流してから入る", "水着の上にタオルを巻く"]}, "hair": {"en": ["Tie your hair up", "Hold your hair with one hand", "Keep your head tilted back"], "fr": ["Attacher ses cheveux", "Tenir ses cheveux d’une main", "Garder la tête penchée en arrière"], "ja": ["髪をまとめて結ぶ", "片手で髪を押さえる", "頭を後ろに傾けておく"]}, "swim": {"en": ["Sit down and soak quietly", "Swim only when it’s empty", "Swim slowly without splashing"], "fr": ["S’asseoir et se détendre en silence", "Nager seulement quand c’est vide", "Nager lentement sans éclabousser"], "ja": ["座って静かに浸かる", "人がいないときだけ泳ぐ", "しぶきを立てずにゆっくり泳ぐ"]}, "photo": {"en": ["Leave your phone in the locker", "Turn off the flash", "Take only selfies, never others"], "fr": ["Laisser son téléphone au casier", "Désactiver le flash", "Ne prendre que des selfies"], "ja": ["スマホはロッカーに置いてくる", "フラッシュを切って撮る", "自撮りだけにする"]}, "upright": {"en": ["Rest them on the chopstick rest", "Stick them in at an angle", "Cross them on top of the rice"], "fr": ["Les poser sur le repose-baguettes", "Les planter en biais", "Les croiser sur le riz"], "ja": ["箸置きに置く", "斜めに刺しておく", "ご飯の上で交差させて置く"]}, "pass": {"en": ["Put it on their plate", "Hand it over more carefully", "Pass it with your fingers"], "fr": ["La poser dans son assiette", "La passer plus délicatement", "La passer avec les doigts"], "ja": ["相手の取り皿に置く", "もっと慎重に箸で渡す", "手でつまんで渡す"]}, "nose": {"en": ["Step away to blow your nose", "Blow your nose more quietly", "Turn your face to the wall"], "fr": ["S’éloigner pour se moucher", "Se moucher plus discrètement", "Se tourner vers le mur"], "ja": ["席を外してから鼻をかむ", "音を小さくしてかむ", "壁の方を向いてかむ"]}, "tip": {"en": ["Pay the bill and say “Gochisōsama”", "Hide the tip under the plate", "Leave a smaller tip"], "fr": ["Payer l’addition et dire « Gochisōsama »", "Cacher le pourboire sous l’assiette", "Laisser un plus petit pourboire"], "ja": ["請求額を払い「ごちそうさま」と言う", "チップを皿の下に隠す", "チップを少なめにする"]}, "shoes": {"en": ["Take them off and line them up at the entrance", "Wipe the soles first", "Walk only on the edge of the tatami"], "fr": ["Les enlever et les aligner à l’entrée", "Essuyer d’abord les semelles", "Marcher seulement au bord du tatami"], "ja": ["入口で脱いで揃える", "靴の裏を拭いてから上がる", "畳のふちだけを歩く"]}};
+// reveal areas of the AFTER image per fixed spot (800-wide coords); defaults to the spot circles
+const FIXAREA={"door":[[388,224,72],[388,295,48],[360,150,40],[418,150,40],[484,400,58],[484,470,42]],"phone":[[521,170,58],[505,115,38]],"pack":[[80,172,60]],"eat":[[94,385,72],[100,470,48],[70,440,40],[135,490,30],[95,300,32],[55,490,26]],"trash":[[560,420,58],[640,420,58],[615,497,26],[729,396,70],[755,275,46]],"towel":[[401,359,50],[362,260,36]],"suit":[[253,330,56],[253,445,60],[177,406,58],[177,320,36]],"hair":[[687,320,64]],"swim":[[458,417,70],[545,410,50]],"photo":[[700,405,72]],"upright":[[202,293,50],[202,336,34]],"pass":[[343,262,62],[300,205,42]],"nose":[[596,227,60],[660,178,36]],"tip":[[550,323,46]],"shoes":[[704,303,80],[704,404,46],[777,467,32],[666,399,26],[752,404,26]]};
+const ORDERS=[[0,1,2],[1,0,2],[2,0,1],[1,2,0],[0,2,1]];
+const UI={
+ en:{title:'Nippon Manners',sub:'Spot the faux pas',found:'Found',chances:'Chances',fixQ:'How do you fix it?',fixed:'Fixed',wrongFix:'That doesn’t fix it. Try another one.',calm:'Everyone is comfortable now.',hint:'Hint',restart:'Restart',faux:'Faux pas',fine:'That’s fine',why:'Why',instead:'Do this instead',
+  introT:'Find and fix the 5 manner mistakes',intro:'Tap anything that looks wrong, then choose how to fix it. Careful: some things look odd but are perfectly fine in Japan. Each wrong tap uses one chance.',hintNote:'Hints cost a star.',
+  missT:'Nothing wrong there',miss:'That spot is fine. One chance used.',clearT:'Scene clear!',next:'Next scene',again:'Play again',
+  lostT:'Out of chances',lost:'You can try again, or see where the mistakes were.',retry:'Try again',reveal:'Show answers',
+  promo:'Want more? Our Japan travel guides cover local manners city by city.',allT:'All scenes clear!',list:'Tap a found item to read it again.',scene:'Scene'},
+ fr:{title:'Les manières du Japon',sub:'Trouvez les impairs',found:'Trouvés',chances:'Chances',fixQ:'Comment corriger ?',fixed:'Corrigé',wrongFix:'Ça ne corrige pas le problème. Essayez une autre réponse.',calm:'Tout le monde est à l’aise maintenant.',hint:'Indice',restart:'Recommencer',faux:'Impair',fine:'C’est correct',why:'Pourquoi',instead:'À faire plutôt',
+  introT:'Trouvez et corrigez les 5 erreurs',intro:'Touchez ce qui vous semble incorrect, puis choisissez comment corriger. Attention : certaines choses paraissent étranges mais sont tout à fait normales au Japon. Chaque erreur coûte une chance.',hintNote:'Un indice coûte une étoile.',
+  missT:'Rien d’anormal ici',miss:'Cet endroit est correct. Une chance en moins.',clearT:'Scène réussie !',next:'Scène suivante',again:'Rejouer',
+  lostT:'Plus de chances',lost:'Vous pouvez réessayer ou voir où étaient les erreurs.',retry:'Réessayer',reveal:'Voir les réponses',
+  promo:'Envie d’en savoir plus ? Nos guides de voyage au Japon présentent les usages locaux ville par ville.',allT:'Toutes les scènes réussies !',list:'Touchez un élément trouvé pour le relire.',scene:'Scène'},
+ ja:{title:'ニッポンマナー間違い探し',sub:'Spot the faux pas',found:'見つけた数',chances:'残りチャンス',fixQ:'どう直す？',fixed:'直した！',wrongFix:'それでは直りません。別のものを選んでください。',calm:'みんなが気持ちよく過ごせるようになりました。',hint:'ヒント',restart:'最初から',faux:'マナー違反',fine:'問題なし',why:'理由',instead:'こうしよう',
+  introT:'マナー違反を5つ見つけて直そう',intro:'おかしいと思うところをタップし、見つけたら直し方を選びます。変に見えても、日本では問題ないものもあります。外れるとチャンスが1つ減ります。',hintNote:'ヒントを使うと星が1つ減ります。',
+  missT:'そこは問題なし',miss:'そこにマナー違反はありません。チャンスが1つ減りました。',clearT:'クリア！',next:'次の場面へ',again:'もう一度遊ぶ',
+  lostT:'チャンスがなくなりました',lost:'もう一度挑戦するか、答えを見ることができます。',retry:'もう一度',reveal:'答えを見る',
+  promo:'もっと知りたい方は、日本旅行ガイドで町ごとのマナーを紹介しています。',allT:'全場面クリア！',list:'見つけた項目をタップすると、もう一度読めます。',scene:'場面'}
+};
+
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let lang=store.get('nm-lang');if(!['en','fr','ja'].includes(lang))lang='en';
+let best=store.get('nm-best')||{};
+let S;
+const $=id=>document.getElementById(id);
+const svg=$('svg');
+const MAXL=3;
+
+function startScene(i){
+  S={i,found:[],fixed:[],decoys:[],misses:0,hints:0,fixMiss:0,lives:MAXL,state:'play',card:{type:'intro'}};
+  const sc=SCENES[i];
+  svg.setAttribute('viewBox',`0 0 800 ${sc.h}`);
+  svg.innerHTML=`<defs><radialGradient id="soft"><stop offset="0.72" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="fixmask" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="${sc.h}"></mask></defs><image href="${sc.img}" x="0" y="0" width="800" height="${sc.h}" preserveAspectRatio="xMidYMid slice"/><image href="${sc.after}" x="0" y="0" width="800" height="${sc.h}" preserveAspectRatio="xMidYMid slice" mask="url(#fixmask)"/><image id="afterfull" class="afterfull" href="${sc.after}" x="0" y="0" width="800" height="${sc.h}" preserveAspectRatio="xMidYMid slice"/>`+'<g id="labels"></g><g id="marks"></g><g id="fx"></g>';
+  renderLabels();
+  svg.setAttribute('aria-label',sc.name[lang]);
+  render();
+}
+const sc=()=>SCENES[S.i];
+const vSpots=()=>sc().spots.filter(s=>s.kind==='v');
+function stars(){return Math.max(1,3-S.misses-S.hints-S.fixMiss)}
+
+function render(){
+  const u=UI[lang];
+  document.documentElement.lang=lang;
+  $('t-title').textContent=u.title; $('t-sub').textContent=u.sub;
+  $('t-found').textContent=u.found; $('t-chances').textContent=u.chances;
+  $('hint').textContent=u.hint; $('restart').textContent=u.restart;
+  ['en','fr','ja'].forEach(k=>$('lang-'+k).setAttribute('aria-pressed',lang===k));
+  $('tabs').innerHTML=SCENES.map((s,k)=>{const b=best[s.id]||0;return `<button class="tab" type="button" data-k="${k}" aria-current="${k===S.i}"><span class="no">${k+1}</span>${s.name[lang]}<span class="best" aria-label="best ${b} stars">${b?'★'.repeat(b)+'<span style="opacity:.25">'+'★'.repeat(3-b)+'</span>':''}</span></button>`}).join('');
+  $('dots').innerHTML=vSpots().map(s=>`<span class="dot ${S.fixed.includes(s.id)?'fixed':S.found.includes(s.id)?'on':''}"></span>`).join('');
+  $('lives').innerHTML=Array.from({length:MAXL},(_,k)=>`<span class="life ${k<S.lives?'':'off'}"></span>`).join('');
+  $('hint').disabled=S.state!=='play';
+  $('frame').classList.toggle('dim',S.state!=='play');
+  const nt=$('scene-note'), n=sc().note;nt.hidden=!n;nt.textContent=n?n[lang]:'';
+  renderCard(); renderChips();
+}
+function spotText(s){return s.t[lang]}
+function thought(l){
+  const c=[[680,252,14],[705,250,15],[730,249,15],[755,250,15],[778,253,14],[680,286,14],[705,288,14],[730,287,14],[755,288,14],[778,285,14],[670,269,13],[786,269,11]];
+  const dots=[[748,306,4.5],[739,315,3]];
+  const all=[...c,...dots];
+  return all.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${l.fill}" stroke="${l.stroke}" stroke-width="2"/>`).join('')+c.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r-1}" fill="${l.fill}"/>`).join('')+`<rect x="676" y="252" width="108" height="34" fill="${l.fill}"/>`;
+}
+function renderLabels(){
+  const g=$('labels');if(!g)return;
+  g.innerHTML=(sc().labels||[]).filter(l=>(lang!=='ja'||l.t.ja)&&!(l.spot&&S.fixed.includes(l.spot))).map(l=>{const txt=l.t[lang]||l.t.en;const lines=txt.split('\n');const fs=l.fs||Math.min(17,l.h*0.55);const lh=fs*1.25;const y0=l.y+l.h/2+1-(lines.length-1)*lh/2;
+    const bg=l.shape==='thought'?thought(l):`<rect x="${l.x}" y="${l.y}" width="${l.w}" height="${l.h}" rx="${l.r}" fill="${l.fill}" stroke="${l.stroke}" stroke-width="2"/>`;
+    return `${bg}<text text-anchor="middle" dominant-baseline="middle" font-family="'Zen Kaku Gothic New',system-ui,sans-serif" font-weight="700" font-size="${fs}" fill="${l.ink}">${lines.map((s,i)=>`<tspan x="${l.x+l.w/2}" y="${y0+i*lh}">${s}</tspan>`).join('')}</text>`}).join('');
+}
+function renderCard(){
+  const u=UI[lang], c=S.card, el=$('card');
+  if(c.type==='intro') el.innerHTML=`<span class="kind info">${u.scene} ${S.i+1} · ${sc().name[lang]}</span><h2>${u.introT}</h2><p>${u.intro}</p><p class="note">${u.hintNote}</p>`;
+  else if(c.type==='v'){const [t,w,d]=spotText(c.s);const id=c.s.id,f=FIX[id];
+    if(S.fixed.includes(id)||!f||S.state==='reveal'||S.state==='lost'){el.innerHTML=`<span class="kind ${S.fixed.includes(id)?'good':'bad'}">${S.fixed.includes(id)?u.fixed:u.faux}</span><h2>${t}</h2><dl><div><dt>${u.why}</dt><dd>${w}</dd></div><div><dt>${u.instead}</dt><dd>${d}</dd></div></dl>`+(S.state==='clear'?resultHTML():'');}
+    else{const opts=f[lang],ord=ORDERS[vSpots().indexOf(c.s)%ORDERS.length];const wr=c.wrong||[];
+      el.innerHTML=`<span class="kind bad">${u.faux}</span><h2>${t}</h2><p>${w}</p><div class="fixq"><span class="lbl">${u.fixQ}</span>${ord.map(k=>`<button class="opt" type="button" data-fix="${k}" ${wr.includes(k)?'disabled':''}>${opts[k]}</button>`).join('')}${wr.length?`<p class="note wrongfix">${u.wrongFix}</p>`:''}</div>`;}}
+  else if(c.type==='d'){const [t,w]=spotText(c.s);el.innerHTML=`<span class="kind good">${u.fine}</span><h2>${t}</h2><p>${w}</p>`;}
+  else if(c.type==='miss') el.innerHTML=`<span class="kind info">${u.missT}</span><p>${u.miss}</p>`;
+  else if(c.type==='clear') el.innerHTML=resultHTML(true);
+  else if(c.type==='lost') el.innerHTML=`<span class="kind bad">${u.lostT}</span><p>${u.lost}</p><div class="btns"><button class="btn primary" type="button" data-act="retry">${u.retry}</button><button class="btn" type="button" data-act="reveal">${u.reveal}</button></div>`;
+}
+function resultHTML(full){
+  const u=UI[lang], n=stars(), last=S.i===SCENES.length-1;
+  const st=`<div class="stars" aria-label="${n} stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(3-n)}</span></div>`;
+  const b=last?`<button class="btn primary" type="button" data-act="again">${u.again}</button>`:`<button class="btn primary" type="button" data-act="next">${u.next}</button>`;
+  const head=full?`<span class="kind good">${last?u.allT:u.clearT}</span><p>${u.calm}</p>`:`<hr style="border:0;border-top:1.5px solid var(--line);width:100%;margin:4px 0"><span class="kind good">${last?u.allT:u.clearT}</span>`;
+  return `${head}${st}<div class="btns">${b}</div>${last?`<p class="note">${u.promo}</p>`:''}`;
+}
+function renderChips(){
+  const u=UI[lang];
+  const items=vSpots().filter(s=>S.found.includes(s.id)||S.state==='reveal');
+  $('chips').innerHTML=items.length?items.map(s=>`<button class="chip ${S.found.includes(s.id)?'':'ghost'} ${S.fixed.includes(s.id)?'done':''}" type="button" data-spot="${s.id}">${S.fixed.includes(s.id)?'✓ ':S.found.includes(s.id)?'… ':''}${spotText(s)[0]}</button>`).join('')+`<p class="note" style="margin:4px 0 0;width:100%">${u.list}</p>`:'';
+}
+
+function svgPoint(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function add(layer,html){$(layer).insertAdjacentHTML('beforeend',html)}
+function maru(s){const rot=(s.x*7)%30-15;add('marks',`<ellipse id="m-${s.id}" class="maru" pathLength="1" cx="${s.x}" cy="${s.y}" rx="${s.r+4}" ry="${s.r-2}" transform="rotate(${rot} ${s.x} ${s.y})"/>`)}
+
+svg.addEventListener('click',e=>{
+  const p=svgPoint(e);
+  const inS=s=>[[s.x,s.y,s.r],...(s.more||[])].some(([x,y,r])=>Math.hypot(x-p.x,y-p.y)<=r);
+  const hit=sc().spots.filter(inS).sort((a,b)=>(a.kind===b.kind?Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y):(a.kind==='v'?-1:1)))[0];
+  if(S.state==='reveal'){if(hit&&hit.kind==='v'){S.card={type:'v',s:hit};render()}return}
+  if(S.state!=='play'){if(hit){S.card={type:hit.kind,s:hit};renderCard()}return}
+  if(hit&&hit.kind==='v'){
+    if(!S.found.includes(hit.id)){S.found.push(hit.id);maru(hit)}
+    S.card={type:'v',s:hit};
+  }else if(hit&&hit.kind==='d'){
+    if(!S.decoys.includes(hit.id)){S.decoys.push(hit.id);S.misses++;S.lives--;add('marks',`<g class="okmark"><circle cx="${hit.x+hit.r-10}" cy="${hit.y-hit.r+10}" r="12"/><path d="M${hit.x+hit.r-16},${hit.y-hit.r+10} l4,5 l9,-9" stroke="#fff" stroke-width="3" fill="none"/></g>`)}
+    S.card={type:'d',s:hit};
+  }else{
+    S.misses++;S.lives--;
+    add('fx',`<text class="miss" x="${p.x}" y="${p.y}" text-anchor="middle" dominant-baseline="middle">✕</text>`);
+    S.card={type:'miss'};
+  }
+  if(S.lives<=0&&S.state==='play'){S.state='lost';S.card={type:'lost'}}
+  render();
+});
+
+$('hint').addEventListener('click',()=>{
+  if(S.state!=='play')return;
+  const s=vSpots().find(v=>!S.found.includes(v.id));if(!s)return;
+  S.hints++;
+  add('fx',`<circle class="hintring" cx="${s.x}" cy="${s.y}" r="${s.r+14}"/>`);
+  const fx=$('fx');setTimeout(()=>{const r=fx.querySelector('.hintring');r&&r.remove()},2200);
+  render();
+});
+$('restart').addEventListener('click',()=>startScene(S.i));
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)startScene(+b.dataset.k)});
+function doFix(id){
+  S.fixed.push(id);
+  const s=sc().spots.find(x=>x.id===id);
+  const areas=FIXAREA[id]||[[s.x,s.y,s.r],...(s.more||[])];
+  const m=document.getElementById('fixmask');
+  areas.forEach(([x,y,r])=>m.insertAdjacentHTML('beforeend',`<circle class="grow" cx="${x}" cy="${y}" r="${r*1.25}" fill="url(#soft)" style="transform-origin:${x}px ${y}px"/>`));
+  const mk=document.getElementById('m-'+id);if(mk)mk.remove();
+  add('marks',`<g class="okmark fixmark"><circle cx="${s.x}" cy="${s.y-s.r}" r="13"/><path d="M${s.x-6},${s.y-s.r} l4,5 l9,-9" stroke="#fff" stroke-width="3" fill="none"/></g>`);
+  renderLabels();
+  if(S.fixed.length===vSpots().length){S.state='clear';const n=stars();if(n>(best[sc().id]||0)){best[sc().id]=n;store.set('nm-best',best)}
+    setTimeout(()=>{const a=document.getElementById('afterfull');if(a)a.classList.add('on')},700);}
+}
+$('card').addEventListener('click',e=>{
+  const o=e.target.closest('[data-fix]');
+  if(o&&S.card.type==='v'&&S.state==='play'){const k=+o.dataset.fix;
+    if(k===0){doFix(S.card.s.id);S.card={type:'v',s:S.card.s}}
+    else{S.fixMiss++;S.card={type:'v',s:S.card.s,wrong:[...(S.card.wrong||[]),k]}}
+    render();return}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const act=a.dataset.act;
+  if(act==='next')startScene(S.i+1);
+  else if(act==='again')startScene(0);
+  else if(act==='retry')startScene(S.i);
+  else if(act==='reveal'){S.state='reveal';vSpots().filter(v=>!S.found.includes(v.id)).forEach(v=>add('marks',`<circle class="reveal" cx="${v.x}" cy="${v.y}" r="${v.r}"/>`));const f=vSpots().find(v=>!S.found.includes(v.id));S.card=f?{type:'v',s:f}:S.card;render()}
+});
+$('chips').addEventListener('click',e=>{const c=e.target.closest('[data-spot]');if(!c)return;const s=sc().spots.find(x=>x.id===c.dataset.spot);S.card={type:'v',s};renderCard()});
+function setLang(l){lang=l;store.set('nm-lang',l);svg.setAttribute('aria-label',sc().name[lang]);renderLabels();render()}
+$('lang-en').addEventListener('click',()=>setLang('en'));
+$('lang-ja').addEventListener('click',()=>setLang('ja'));
+$('lang-fr').addEventListener('click',()=>setLang('fr'));
+startScene(0);
+</script>
+</body>
+</html>
